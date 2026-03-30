@@ -610,26 +610,22 @@
   let currentScreen = 'list';
 
   function navigateTo(name, back = false) {
-    const prev = screens[currentScreen];
-    const next = screens[name];
-    if (!next || name === currentScreen) return;
+    const prevScreen = screens[currentScreen];
+    const nextScreen = screens[name];
+    if (!nextScreen || name === currentScreen) return;
+
+    // Убираем prev у целевого экрана — иначе translateX(-30%) перекроет active
+    nextScreen.classList.remove('prev');
 
     if (back) {
-      prev.classList.remove('active');
-      prev.classList.add('');           // just hide
-      prev.style.transform = '';
-      setTimeout(() => { prev.style.transform = ''; }, 300);
+      prevScreen.classList.remove('active');
+      // prevScreen уйдёт на translateX(100%) по базовому .screen
     } else {
-      prev.classList.add('prev');
+      prevScreen.classList.add('prev');
+      setTimeout(() => prevScreen.classList.remove('prev'), 300);
     }
 
-    next.classList.add('active');
-    if (back) {
-      prev.classList.remove('active');
-      prev.classList.remove('prev');
-    } else {
-      setTimeout(() => prev.classList.remove('prev'), 300);
-    }
+    nextScreen.classList.add('active');
 
     currentScreen = name;
     updateTgBackButton();
