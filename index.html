@@ -666,17 +666,6 @@
     return resp.json();
   }
 
-  // POST-вариант для длинных данных (add/delete), чтобы не упираться в лимит URL GAS
-  async function apiPost(data) {
-    const resp = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-      redirect: 'follow'
-    });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return resp.json();
-  }
 
   // ════════════════════════════════════════════
   // CHIPS / CATEGORIES
@@ -1026,7 +1015,7 @@
     }
 
     try {
-      const result = await apiPost({
+      const result = await api({
         action: 'add',
         title,
         category,
