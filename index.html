@@ -1,433 +1,433 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Мои рецепты</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  /* ── Reset & Base ── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    background: var(--bg);
-    color: var(--text);
-    transition: background 0.2s, color 0.2s;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Мои рецепты</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.2s, color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
 
-  /* ── CSS Variables (fallback palette) ── */
-  :root {
-    --bg:        #FFF8F0;
-    --card-bg:   #FFFFFF;
-    --text:      #2D3436;
-    --hint:      #888;
-    --accent:    #E07A5F;
-    --accent-t:  #FFFFFF;
-    --border:    rgba(0,0,0,0.08);
-    --shadow:    rgba(0,0,0,0.08);
-    --header-h:  56px;
-    --search-h:  44px;
-    --chips-h:   44px;
-    --safe-top:  env(safe-area-inset-top, 0px);
-    --safe-bot:  env(safe-area-inset-bottom, 0px);
-  }
+    /* ── CSS Variables (fallback palette) ── */
+    :root {
+      --bg:        #FFF8F0;
+      --card-bg:   #FFFFFF;
+      --text:      #2D3436;
+      --hint:      #888;
+      --accent:    #E07A5F;
+      --accent-t:  #FFFFFF;
+      --border:    rgba(0,0,0,0.08);
+      --shadow:    rgba(0,0,0,0.08);
+      --header-h:  56px;
+      --search-h:  44px;
+      --chips-h:   44px;
+      --safe-top:  env(safe-area-inset-top, 0px);
+      --safe-bot:  env(safe-area-inset-bottom, 0px);
+    }
 
-  /* ── Screens ── */
-  .screen {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    background: var(--bg);
-    transform: translateX(100%);
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-    will-change: transform;
-    overflow: hidden;
-  }
-  .screen.active   { transform: translateX(0); }
-  .screen.prev     { transform: translateX(-30%); }
+    /* ── Screens ── */
+    .screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      background: var(--bg);
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      will-change: transform;
+      overflow: hidden;
+    }
+    .screen.active   { transform: translateX(0); }
+    .screen.prev     { transform: translateX(-30%); }
 
-  /* ── Top Bar ── */
-  .top-bar {
-    flex-shrink: 0;
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--border);
-    padding-top: var(--safe-top);
-    box-shadow: 0 1px 6px var(--shadow);
-    z-index: 10;
-  }
-  .top-bar-inner {
-    display: flex; align-items: center; gap: 8px;
-    padding: 0 16px;
-    height: var(--header-h);
-  }
-  .top-bar h1 {
-    font-size: 18px; font-weight: 700;
-    flex: 1;
-  }
-  .icon-btn {
-    width: 36px; height: 36px;
-    border: none; background: none;
-    border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    color: var(--text);
-    transition: background 0.15s;
-  }
-  .icon-btn:active { background: var(--border); }
+    /* ── Top Bar ── */
+    .top-bar {
+      flex-shrink: 0;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding-top: var(--safe-top);
+      box-shadow: 0 1px 6px var(--shadow);
+      z-index: 10;
+    }
+    .top-bar-inner {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 16px;
+      height: var(--header-h);
+    }
+    .top-bar h1 {
+      font-size: 18px; font-weight: 700;
+      flex: 1;
+    }
+    .icon-btn {
+      width: 36px; height: 36px;
+      border: none; background: none;
+      border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .icon-btn:active { background: var(--border); }
 
-  /* ── Search bar ── */
-  .search-wrap {
-    padding: 0 16px 10px;
-    position: relative;
-  }
-  .search-wrap .icon { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; color: var(--hint); }
-  #search-input {
-    width: 100%;
-    height: var(--search-h);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 0 14px 0 36px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  #search-input:focus { border-color: var(--accent); }
-  #search-input::placeholder { color: var(--hint); }
+    /* ── Search bar ── */
+    .search-wrap {
+      padding: 0 16px 10px;
+      position: relative;
+    }
+    .search-wrap .icon { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; color: var(--hint); }
+    #search-input {
+      width: 100%;
+      height: var(--search-h);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0 14px 0 36px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #search-input:focus { border-color: var(--accent); }
+    #search-input::placeholder { color: var(--hint); }
 
-  /* ── Category chips ── */
-  .chips-wrap {
-    padding: 0 16px 10px;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .chips-wrap::-webkit-scrollbar { display: none; }
-  .chip {
-    display: inline-block;
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-right: 6px;
-    cursor: pointer;
-    border: 1.5px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text);
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .chip:last-child { margin-right: 0; }
-  .chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--accent-t);
-  }
+    /* ── Category chips ── */
+    .chips-wrap {
+      padding: 0 16px 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .chips-wrap::-webkit-scrollbar { display: none; }
+    .chip {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-right: 6px;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .chip:last-child { margin-right: 0; }
+    .chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-t);
+    }
 
-  /* ── Scroll area ── */
-  .scroll-area {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 8px 16px calc(80px + var(--safe-bot));
-  }
+    /* ── Scroll area ── */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 16px calc(80px + var(--safe-bot));
+    }
 
-  /* ── Recipe Card ── */
-  .recipe-card {
-    display: flex;
-    gap: 12px;
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px var(--shadow);
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    animation: fadeIn 0.3s ease both;
-  }
-  .recipe-card:active { transform: scale(0.98); box-shadow: 0 1px 4px var(--shadow); }
-  .card-thumb {
-    flex-shrink: 0;
-    width: 80px; height: 80px;
-    border-radius: 12px;
-    object-fit: cover;
-    background: var(--border);
-  }
-  .card-thumb-placeholder {
-    flex-shrink: 0;
-    width: 80px; height: 80px;
-    border-radius: 12px;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-  }
-  .card-body { flex: 1; min-width: 0; }
-  .card-title {
-    font-size: 16px; font-weight: 700;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-bottom: 4px;
-  }
-  .card-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-    background: var(--accent);
-    color: var(--accent-t);
-    text-transform: capitalize;
-  }
-  .card-date { font-size: 11px; color: var(--hint); margin-left: auto; }
-  .card-ingredients { font-size: 13px; color: var(--hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* ── Recipe Card ── */
+    .recipe-card {
+      display: flex;
+      gap: 12px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: fadeIn 0.3s ease both;
+    }
+    .recipe-card:active { transform: scale(0.98); box-shadow: 0 1px 4px var(--shadow); }
+    .card-thumb {
+      flex-shrink: 0;
+      width: 80px; height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--border);
+    }
+    .card-thumb-placeholder {
+      flex-shrink: 0;
+      width: 80px; height: 80px;
+      border-radius: 12px;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .card-body { flex: 1; min-width: 0; }
+    .card-title {
+      font-size: 16px; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .card-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--accent);
+      color: var(--accent-t);
+      text-transform: capitalize;
+    }
+    .card-date { font-size: 11px; color: var(--hint); margin-left: auto; }
+    .card-ingredients { font-size: 13px; color: var(--hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* ── Skeleton ── */
-  .skeleton-card {
-    display: flex; gap: 12px;
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px var(--shadow);
-  }
-  .skel {
-    border-radius: 8px;
-    background: linear-gradient(90deg, var(--border) 25%, rgba(0,0,0,0.04) 50%, var(--border) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite;
-  }
-  .skel-thumb { width: 80px; height: 80px; border-radius: 12px; }
-  .skel-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-  .skel-title { height: 18px; width: 70%; }
-  .skel-badge { height: 14px; width: 40%; }
-  .skel-text  { height: 12px; width: 90%; }
+    /* ── Skeleton ── */
+    .skeleton-card {
+      display: flex; gap: 12px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .skel {
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--border) 25%, rgba(0,0,0,0.04) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    .skel-thumb { width: 80px; height: 80px; border-radius: 12px; }
+    .skel-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .skel-title { height: 18px; width: 70%; }
+    .skel-badge { height: 14px; width: 40%; }
+    .skel-text  { height: 12px; width: 90%; }
 
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--hint);
-    animation: fadeIn 0.3s ease;
-  }
-  .empty-state .emoji { font-size: 56px; margin-bottom: 16px; }
-  .empty-state p { font-size: 15px; }
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--hint);
+      animation: fadeIn 0.3s ease;
+    }
+    .empty-state .emoji { font-size: 56px; margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; }
 
-  /* ── FAB ── */
-  .fab {
-    position: fixed;
-    right: 20px;
-    bottom: calc(20px + var(--safe-bot));
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: var(--accent-t);
-    font-size: 28px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.15s, box-shadow 0.15s;
-    z-index: 100;
-  }
-  .fab:active { transform: scale(0.92); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      right: 20px;
+      bottom: calc(20px + var(--safe-bot));
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--accent-t);
+      font-size: 28px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+      z-index: 100;
+    }
+    .fab:active { transform: scale(0.92); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-  /* ── Detail screen ── */
-  #screen-detail .scroll-area { padding-bottom: calc(80px + var(--safe-bot)); }
-  .detail-hero {
-    width: 100%;
-    max-height: 240px;
-    object-fit: cover;
-    border-radius: 0 0 20px 20px;
-    display: block;
-    margin-bottom: 16px;
-  }
-  .detail-body { padding: 0 16px; }
-  .detail-title {
-    font-size: 22px; font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .section-title {
-    font-size: 14px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--hint);
-    margin: 20px 0 10px;
-  }
-  .ingredients-list { list-style: none; }
-  .ingredients-list li { padding: 4px 0; font-size: 15px; }
-  .ingredients-list li::before { content: '•  '; color: var(--accent); font-weight: 700; }
-  .steps-list { list-style: none; counter-reset: step-counter; }
-  .steps-list li {
-    counter-increment: step-counter;
-    padding: 8px 0 8px 36px;
-    position: relative;
-    font-size: 15px;
-    border-bottom: 1px solid var(--border);
-  }
-  .steps-list li:last-child { border-bottom: none; }
-  .steps-list li::before {
-    content: counter(step-counter);
-    position: absolute; left: 0; top: 8px;
-    width: 24px; height: 24px;
-    background: var(--accent);
-    color: var(--accent-t);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-  }
-  .detail-actions {
-    display: flex; gap: 10px;
-    padding: 12px 16px calc(12px + var(--safe-bot));
-    background: var(--card-bg);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .btn {
-    flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.15s;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .btn:active { opacity: 0.8; transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: var(--accent-t); }
-  .btn-danger  { background: #ff5252; color: #fff; }
-  .btn-secondary {
-    background: var(--bg);
-    color: var(--text);
-    border: 1.5px solid var(--border);
-  }
+    /* ── Detail screen ── */
+    #screen-detail .scroll-area { padding-bottom: calc(80px + var(--safe-bot)); }
+    .detail-hero {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 0 0 20px 20px;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .detail-body { padding: 0 16px; }
+    .detail-title {
+      font-size: 22px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 14px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--hint);
+      margin: 20px 0 10px;
+    }
+    .ingredients-list { list-style: none; }
+    .ingredients-list li { padding: 4px 0; font-size: 15px; }
+    .ingredients-list li::before { content: '•  '; color: var(--accent); font-weight: 700; }
+    .steps-list { list-style: none; counter-reset: step-counter; }
+    .steps-list li {
+      counter-increment: step-counter;
+      padding: 8px 0 8px 36px;
+      position: relative;
+      font-size: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    .steps-list li:last-child { border-bottom: none; }
+    .steps-list li::before {
+      content: counter(step-counter);
+      position: absolute; left: 0; top: 8px;
+      width: 24px; height: 24px;
+      background: var(--accent);
+      color: var(--accent-t);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .detail-actions {
+      display: flex; gap: 10px;
+      padding: 12px 16px calc(12px + var(--safe-bot));
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn:active { opacity: 0.8; transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: var(--accent-t); }
+    .btn-danger  { background: #ff5252; color: #fff; }
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
 
-  /* ── Back button ── */
-  .back-btn {
-    display: flex; align-items: center; gap: 4px;
-    padding: 0 16px;
-    height: var(--header-h);
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--accent);
-    cursor: pointer;
-    border: none;
-    background: none;
-    flex-shrink: 0;
-  }
+    /* ── Back button ── */
+    .back-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 0 16px;
+      height: var(--header-h);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      border: none;
+      background: none;
+      flex-shrink: 0;
+    }
 
-  /* ── Add screen ── */
-  .add-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(80px + var(--safe-bot)); }
-  .form-group { margin-bottom: 18px; }
-  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--hint); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1.5px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-  .form-textarea { resize: vertical; min-height: 100px; }
-  .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    /* ── Add screen ── */
+    .add-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(80px + var(--safe-bot)); }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--hint); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 
-  /* ── Photo upload ── */
-  .photo-area { display: flex; flex-direction: column; gap: 10px; }
-  .photo-preview-wrap { position: relative; display: inline-block; }
-  .photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; display: block; }
-  .photo-remove {
-    position: absolute; top: 8px; right: 8px;
-    width: 28px; height: 28px;
-    background: rgba(0,0,0,0.5);
-    color: #fff;
-    border-radius: 50%;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .photo-loading {
-    position: absolute; inset: 0;
-    background: rgba(0,0,0,0.4);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 14px;
-  }
-  .btn-photo {
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1.5px dashed var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    cursor: pointer;
-    text-align: left;
-    transition: border-color 0.2s;
-  }
-  .btn-photo:active { border-color: var(--accent); }
-  .add-title { font-size: 18px; font-weight: 700; padding: 0 16px 12px; flex-shrink: 0; }
+    /* ── Photo upload ── */
+    .photo-area { display: flex; flex-direction: column; gap: 10px; }
+    .photo-preview-wrap { position: relative; display: inline-block; }
+    .photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; display: block; }
+    .photo-remove {
+      position: absolute; top: 8px; right: 8px;
+      width: 28px; height: 28px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border-radius: 50%;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .photo-loading {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px;
+    }
+    .btn-photo {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px dashed var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s;
+    }
+    .btn-photo:active { border-color: var(--accent); }
+    .add-title { font-size: 18px; font-weight: 700; padding: 0 16px 12px; flex-shrink: 0; }
 
-  /* ── Settings screen ── */
-  .settings-body { flex: 1; overflow-y: auto; padding: 16px; }
-  .settings-section { background: var(--card-bg); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
-  .settings-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .settings-row:last-child { border-bottom: none; }
-  .settings-row:active { background: var(--bg); }
-  .settings-row .s-icon { font-size: 22px; width: 30px; text-align: center; }
-  .settings-row .s-label { font-size: 15px; font-weight: 500; flex: 1; }
-  .settings-row .s-arrow { color: var(--hint); font-size: 14px; }
-  .settings-info { font-size: 13px; color: var(--hint); padding: 8px 16px 4px; }
+    /* ── Settings screen ── */
+    .settings-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .settings-section { background: var(--card-bg); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+    .settings-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row:active { background: var(--bg); }
+    .settings-row .s-icon { font-size: 22px; width: 30px; text-align: center; }
+    .settings-row .s-label { font-size: 15px; font-weight: 500; flex: 1; }
+    .settings-row .s-arrow { color: var(--hint); font-size: 14px; }
+    .settings-info { font-size: 13px; color: var(--hint); padding: 8px 16px 4px; }
 
-  /* ── Toast ── */
-  .toast {
-    position: fixed; top: calc(var(--safe-top) + 12px); left: 50%; transform: translateX(-50%) translateY(-60px);
-    background: #2D3436;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 24px;
-    font-size: 14px; font-weight: 500;
-    z-index: 9999;
-    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
-    opacity: 0;
-    white-space: nowrap;
-    pointer-events: none;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    /* ── Toast ── */
+    .toast {
+      position: fixed; top: calc(var(--safe-top) + 12px); left: 50%; transform: translateX(-50%) translateY(-60px);
+      background: #2D3436;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 14px; font-weight: 500;
+      z-index: 9999;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
+      opacity: 0;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-  /* ── Spinner ── */
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-    display: inline-block;
-  }
+    /* ── Spinner ── */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
 
-  /* ── Animations ── */
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes shimmer { to { background-position: -200% 0; } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+    /* ── Animations ── */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
 
@@ -536,220 +536,232 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════
-// КОНФИГУРАЦИЯ
-// ════════════════════════════════════════════
-const API_URL = 'ВСТАВЬ_URL_GOOGLE_APPS_SCRIPT';
+  // ════════════════════════════════════════════
+  // КОНФИГУРАЦИЯ
+  // ════════════════════════════════════════════
+  const API_URL = 'https://script.google.com/macros/s/AKfycbx3KszherjG2JM_snVEw5Sfo0LfSkjDAuURvcPuOTREYer-ydzFK-bAMURGjTiLOk8B/exec';
 
-// ════════════════════════════════════════════
-// TELEGRAM WEB APP INIT
-// ════════════════════════════════════════════
-const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  applyTgTheme();
-}
-
-function applyTgTheme() {
-  if (!tg?.themeParams) return;
-  const p = tg.themeParams;
-  const root = document.documentElement;
-  if (p.bg_color)            root.style.setProperty('--bg',       p.bg_color);
-  if (p.secondary_bg_color)  root.style.setProperty('--card-bg',  p.secondary_bg_color);
-  if (p.text_color)          root.style.setProperty('--text',     p.text_color);
-  if (p.hint_color)          root.style.setProperty('--hint',     p.hint_color);
-  if (p.button_color)        root.style.setProperty('--accent',   p.button_color);
-  if (p.button_text_color)   root.style.setProperty('--accent-t', p.button_text_color);
-}
-
-// ════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════
-let allRecipes      = [];
-let currentRecipe   = null;
-let activeCategory  = '';
-let searchQuery     = '';
-let photoUrl        = '';
-let isSaving        = false;
-let searchTimer     = null;
-const CATEGORIES    = ['Все','Завтрак','Суп','Салат','Основное','Десерт','Выпечка','Напиток'];
-
-// ════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════
-const screens = {
-  list:     document.getElementById('screen-list'),
-  detail:   document.getElementById('screen-detail'),
-  add:      document.getElementById('screen-add'),
-  settings: document.getElementById('screen-settings'),
-};
-let currentScreen = 'list';
-
-function navigateTo(name, back = false) {
-  const prev = screens[currentScreen];
-  const next = screens[name];
-  if (!next || name === currentScreen) return;
-
-  if (back) {
-    prev.classList.remove('active');
-    prev.classList.add('');           // just hide
-    prev.style.transform = '';
-    setTimeout(() => { prev.style.transform = ''; }, 300);
-  } else {
-    prev.classList.add('prev');
+  // ════════════════════════════════════════════
+  // TELEGRAM WEB APP INIT
+  // ════════════════════════════════════════════
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    applyTgTheme();
   }
 
-  next.classList.add('active');
-  if (back) {
-    prev.classList.remove('active');
-    prev.classList.remove('prev');
-  } else {
-    setTimeout(() => prev.classList.remove('prev'), 300);
+  function applyTgTheme() {
+    if (!tg?.themeParams) return;
+    const p = tg.themeParams;
+    const root = document.documentElement;
+    if (p.bg_color)            root.style.setProperty('--bg',       p.bg_color);
+    if (p.secondary_bg_color)  root.style.setProperty('--card-bg',  p.secondary_bg_color);
+    if (p.text_color)          root.style.setProperty('--text',     p.text_color);
+    if (p.hint_color)          root.style.setProperty('--hint',     p.hint_color);
+    if (p.button_color)        root.style.setProperty('--accent',   p.button_color);
+    if (p.button_text_color)   root.style.setProperty('--accent-t', p.button_text_color);
   }
 
-  currentScreen = name;
-  updateTgBackButton();
-  updateTgMainButton();
-}
+  // ════════════════════════════════════════════
+  // STATE
+  // ════════════════════════════════════════════
+  let allRecipes      = [];
+  let currentRecipe   = null;
+  let activeCategory  = '';
+  let searchQuery     = '';
+  let photoUrl        = '';
+  let isSaving        = false;
+  let searchTimer     = null;
+  const CATEGORIES    = ['Все','Завтрак','Суп','Салат','Основное','Десерт','Выпечка','Напиток'];
 
-function goBack() {
-  if (currentScreen === 'detail')   navigateTo('list', true);
-  else if (currentScreen === 'add') {
-    navigateTo('list', true);
-    resetAddForm();
-  } else if (currentScreen === 'settings') navigateTo('list', true);
-}
+  // ════════════════════════════════════════════
+  // NAVIGATION
+  // ════════════════════════════════════════════
+  const screens = {
+    list:     document.getElementById('screen-list'),
+    detail:   document.getElementById('screen-detail'),
+    add:      document.getElementById('screen-add'),
+    settings: document.getElementById('screen-settings'),
+  };
+  let currentScreen = 'list';
 
-// ── Telegram back button ──
-function updateTgBackButton() {
-  if (!tg) return;
-  if (currentScreen === 'list') {
-    tg.BackButton.hide();
-  } else {
-    tg.BackButton.show();
+  function navigateTo(name, back = false) {
+    const prev = screens[currentScreen];
+    const next = screens[name];
+    if (!next || name === currentScreen) return;
+
+    if (back) {
+      prev.classList.remove('active');
+      prev.classList.add('');           // just hide
+      prev.style.transform = '';
+      setTimeout(() => { prev.style.transform = ''; }, 300);
+    } else {
+      prev.classList.add('prev');
+    }
+
+    next.classList.add('active');
+    if (back) {
+      prev.classList.remove('active');
+      prev.classList.remove('prev');
+    } else {
+      setTimeout(() => prev.classList.remove('prev'), 300);
+    }
+
+    currentScreen = name;
+    updateTgBackButton();
+    updateTgMainButton();
   }
-}
 
-tg?.BackButton?.onClick(goBack);
-
-// ── Telegram main button ──
-function updateTgMainButton() {
-  if (!tg?.MainButton) return;
-  if (currentScreen === 'add') {
-    tg.MainButton.setText('💾 Сохранить рецепт');
-    tg.MainButton.show();
-  } else {
-    tg.MainButton.hide();
+  function goBack() {
+    if (currentScreen === 'detail')   navigateTo('list', true);
+    else if (currentScreen === 'add') {
+      navigateTo('list', true);
+      resetAddForm();
+    } else if (currentScreen === 'settings') navigateTo('list', true);
   }
-}
 
-tg?.MainButton?.onClick(saveRecipe);
+  // ── Telegram back button ──
+  function updateTgBackButton() {
+    if (!tg) return;
+    if (currentScreen === 'list') {
+      tg.BackButton.hide();
+    } else {
+      tg.BackButton.show();
+    }
+  }
 
-// ── DOM navigation ──
-document.getElementById('back-detail').addEventListener('click', goBack);
-document.getElementById('back-add').addEventListener('click', goBack);
-document.getElementById('back-settings').addEventListener('click', goBack);
-document.getElementById('btn-settings').addEventListener('click', () => navigateTo('settings'));
-document.getElementById('fab-add').addEventListener('click', () => navigateTo('add'));
+  tg?.BackButton?.onClick(goBack);
 
-// ════════════════════════════════════════════
-// API
-// ════════════════════════════════════════════
-async function api(params) {
-  const qs = Object.entries(params)
-    .map(([k, v]) => k + '=' + encodeURIComponent(v))
-    .join('&');
-  const url = API_URL + '?' + qs;
-  const resp = await fetch(url, { redirect: 'follow' });
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  return resp.json();
-}
+  // ── Telegram main button ──
+  function updateTgMainButton() {
+    if (!tg?.MainButton) return;
+    if (currentScreen === 'add') {
+      tg.MainButton.setText('💾 Сохранить рецепт');
+      tg.MainButton.show();
+    } else {
+      tg.MainButton.hide();
+    }
+  }
 
-// ════════════════════════════════════════════
-// CHIPS / CATEGORIES
-// ════════════════════════════════════════════
-function renderChips() {
-  const wrap = document.getElementById('chips-wrap');
-  wrap.innerHTML = '';
-  CATEGORIES.forEach(cat => {
-    const val = cat === 'Все' ? '' : cat.toLowerCase();
-    const el = document.createElement('span');
-    el.className = 'chip' + (activeCategory === val ? ' active' : '');
-    el.textContent = cat;
-    el.addEventListener('click', () => {
-      activeCategory = val;
-      renderChips();
-      applyFilter();
+  tg?.MainButton?.onClick(saveRecipe);
+
+  // ── DOM navigation ──
+  document.getElementById('back-detail').addEventListener('click', goBack);
+  document.getElementById('back-add').addEventListener('click', goBack);
+  document.getElementById('back-settings').addEventListener('click', goBack);
+  document.getElementById('btn-settings').addEventListener('click', () => navigateTo('settings'));
+  document.getElementById('fab-add').addEventListener('click', () => navigateTo('add'));
+
+  // ════════════════════════════════════════════
+  // API
+  // ════════════════════════════════════════════
+  async function api(params) {
+    const qs = Object.entries(params)
+            .map(([k, v]) => k + '=' + encodeURIComponent(v))
+            .join('&');
+    const url = API_URL + '?' + qs;
+    const resp = await fetch(url, { redirect: 'follow' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  }
+
+  // POST-вариант для длинных данных (add/delete), чтобы не упираться в лимит URL GAS
+  async function apiPost(data) {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      redirect: 'follow'
     });
-    wrap.appendChild(el);
-  });
-}
-
-// ════════════════════════════════════════════
-// LOAD & RENDER RECIPES
-// ════════════════════════════════════════════
-async function loadRecipes() {
-  renderSkeleton();
-  try {
-    allRecipes = await api({ action: 'list' });
-    applyFilter();
-  } catch (e) {
-    showToast('Ошибка загрузки рецептов');
-    renderEmpty('Ошибка загрузки. Проверьте соединение.');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
   }
-}
 
-function applyFilter() {
-  let recipes = allRecipes;
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    recipes = recipes.filter(r =>
-      r.title.toLowerCase().includes(q) ||
-      r.ingredients.toLowerCase().includes(q)
-    );
+  // ════════════════════════════════════════════
+  // CHIPS / CATEGORIES
+  // ════════════════════════════════════════════
+  function renderChips() {
+    const wrap = document.getElementById('chips-wrap');
+    wrap.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const val = cat === 'Все' ? '' : cat.toLowerCase();
+      const el = document.createElement('span');
+      el.className = 'chip' + (activeCategory === val ? ' active' : '');
+      el.textContent = cat;
+      el.addEventListener('click', () => {
+        activeCategory = val;
+        renderChips();
+        applyFilter();
+      });
+      wrap.appendChild(el);
+    });
   }
-  if (activeCategory) {
-    recipes = recipes.filter(r => r.category.toLowerCase() === activeCategory);
+
+  // ════════════════════════════════════════════
+  // LOAD & RENDER RECIPES
+  // ════════════════════════════════════════════
+  async function loadRecipes() {
+    renderSkeleton();
+    try {
+      allRecipes = await api({ action: 'list' });
+      applyFilter();
+    } catch (e) {
+      showToast('Ошибка загрузки рецептов');
+      renderEmpty('Ошибка загрузки. Проверьте соединение.');
+    }
   }
-  renderList(recipes);
-}
 
-function renderList(recipes) {
-  const container = document.getElementById('recipe-list');
-  if (!recipes.length) {
-    renderEmpty(searchQuery || activeCategory
-      ? 'По вашему запросу ничего не найдено'
-      : 'Пока нет рецептов. Добавьте первый! 👨‍🍳');
-    return;
+  function applyFilter() {
+    let recipes = allRecipes;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      recipes = recipes.filter(r =>
+              r.title.toLowerCase().includes(q) ||
+              r.ingredients.toLowerCase().includes(q)
+      );
+    }
+    if (activeCategory) {
+      recipes = recipes.filter(r => r.category.toLowerCase() === activeCategory);
+    }
+    renderList(recipes);
   }
-  container.innerHTML = '';
-  recipes.forEach((r, i) => {
-    const card = buildCard(r);
-    card.style.animationDelay = (i * 40) + 'ms';
-    container.appendChild(card);
-  });
-}
 
-function buildCard(r) {
-  const card = document.createElement('div');
-  card.className = 'recipe-card';
-  card.addEventListener('click', () => openDetail(r));
+  function renderList(recipes) {
+    const container = document.getElementById('recipe-list');
+    if (!recipes.length) {
+      renderEmpty(searchQuery || activeCategory
+              ? 'По вашему запросу ничего не найдено'
+              : 'Пока нет рецептов. Добавьте первый! 👨‍🍳');
+      return;
+    }
+    container.innerHTML = '';
+    recipes.forEach((r, i) => {
+      const card = buildCard(r);
+      card.style.animationDelay = (i * 40) + 'ms';
+      container.appendChild(card);
+    });
+  }
 
-  const ingredients = r.ingredients
-    ? r.ingredients.split('\n').filter(Boolean).slice(0, 3).join(', ')
-    : '';
-  const date = r.created_at ? formatDate(r.created_at) : '';
-  const catLabel = r.category
-    ? r.category.charAt(0).toUpperCase() + r.category.slice(1)
-    : '';
+  function buildCard(r) {
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+    card.addEventListener('click', () => openDetail(r));
 
-  const thumbHtml = r.photo_url
-    ? `<img class="card-thumb" src="${escapeHtml(r.photo_url)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-      + `<div class="card-thumb-placeholder" style="display:none">${categoryEmoji(r.category)}</div>`
-    : `<div class="card-thumb-placeholder">${categoryEmoji(r.category)}</div>`;
+    const ingredients = r.ingredients
+            ? r.ingredients.split('\n').filter(Boolean).slice(0, 3).join(', ')
+            : '';
+    const date = r.created_at ? formatDate(r.created_at) : '';
+    const catLabel = r.category
+            ? r.category.charAt(0).toUpperCase() + r.category.slice(1)
+            : '';
 
-  card.innerHTML = thumbHtml + `
+    const thumbHtml = r.photo_url
+            ? `<img class="card-thumb" src="${escapeHtml(r.photo_url)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            + `<div class="card-thumb-placeholder" style="display:none">${categoryEmoji(r.category)}</div>`
+            : `<div class="card-thumb-placeholder">${categoryEmoji(r.category)}</div>`;
+
+    card.innerHTML = thumbHtml + `
     <div class="card-body">
       <div class="card-title">${escapeHtml(r.title)}</div>
       <div class="card-meta">
@@ -758,20 +770,20 @@ function buildCard(r) {
       </div>
       ${ingredients ? `<div class="card-ingredients">${escapeHtml(ingredients)}</div>` : ''}
     </div>`;
-  return card;
-}
+    return card;
+  }
 
-function renderEmpty(msg) {
-  document.getElementById('recipe-list').innerHTML = `
+  function renderEmpty(msg) {
+    document.getElementById('recipe-list').innerHTML = `
     <div class="empty-state">
       <div class="emoji">🍽</div>
       <p>${escapeHtml(msg)}</p>
     </div>`;
-}
+  }
 
-function renderSkeleton() {
-  const container = document.getElementById('recipe-list');
-  container.innerHTML = Array.from({length: 4}, () => `
+  function renderSkeleton() {
+    const container = document.getElementById('recipe-list');
+    container.innerHTML = Array.from({length: 4}, () => `
     <div class="skeleton-card">
       <div class="skel skel-thumb"></div>
       <div class="skel-body">
@@ -780,34 +792,34 @@ function renderSkeleton() {
         <div class="skel skel-text"></div>
       </div>
     </div>`).join('');
-}
+  }
 
-// ════════════════════════════════════════════
-// DETAIL SCREEN
-// ════════════════════════════════════════════
-function openDetail(recipe) {
-  currentRecipe = recipe;
-  const content = document.getElementById('detail-content');
+  // ════════════════════════════════════════════
+  // DETAIL SCREEN
+  // ════════════════════════════════════════════
+  function openDetail(recipe) {
+    currentRecipe = recipe;
+    const content = document.getElementById('detail-content');
 
-  const heroHtml = recipe.photo_url
-    ? `<img class="detail-hero" src="${escapeHtml(recipe.photo_url)}" alt="" onerror="this.style.display='none'">`
-    : '';
+    const heroHtml = recipe.photo_url
+            ? `<img class="detail-hero" src="${escapeHtml(recipe.photo_url)}" alt="" onerror="this.style.display='none'">`
+            : '';
 
-  const catLabel = recipe.category
-    ? recipe.category.charAt(0).toUpperCase() + recipe.category.slice(1)
-    : '';
+    const catLabel = recipe.category
+            ? recipe.category.charAt(0).toUpperCase() + recipe.category.slice(1)
+            : '';
 
-  const ingredientItems = recipe.ingredients
-    ? recipe.ingredients.split('\n').filter(Boolean)
-        .map(i => `<li>${escapeHtml(i.trim())}</li>`).join('')
-    : '<li>Не указаны</li>';
+    const ingredientItems = recipe.ingredients
+            ? recipe.ingredients.split('\n').filter(Boolean)
+                    .map(i => `<li>${escapeHtml(i.trim())}</li>`).join('')
+            : '<li>Не указаны</li>';
 
-  const stepItems = recipe.steps
-    ? recipe.steps.split('\n').filter(Boolean)
-        .map(s => `<li>${escapeHtml(s.trim())}</li>`).join('')
-    : '';
+    const stepItems = recipe.steps
+            ? recipe.steps.split('\n').filter(Boolean)
+                    .map(s => `<li>${escapeHtml(s.trim())}</li>`).join('')
+            : '';
 
-  content.innerHTML = heroHtml + `
+    content.innerHTML = heroHtml + `
     <div class="detail-body">
       <h2 class="detail-title">${escapeHtml(recipe.title)}</h2>
       ${catLabel ? `<span class="badge">${escapeHtml(catLabel)}</span>` : ''}
@@ -816,166 +828,88 @@ function openDetail(recipe) {
       ${stepItems ? `<p class="section-title">Приготовление</p><ol class="steps-list">${stepItems}</ol>` : ''}
     </div>`;
 
-  navigateTo('detail');
-}
-
-// ── Copy ──
-document.getElementById('btn-copy').addEventListener('click', () => {
-  if (!currentRecipe) return;
-  const text = formatForCopy(currentRecipe);
-  navigator.clipboard.writeText(text)
-    .then(() => showToast('✅ Рецепт скопирован'))
-    .catch(() => showToast('Не удалось скопировать'));
-});
-
-function formatForCopy(r) {
-  const title    = r.title || '';
-  const catLabel = r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : '';
-  const ingredients = r.ingredients
-    ? r.ingredients.split('\n').filter(Boolean).map(i => '• ' + i.trim()).join('\n')
-    : '';
-  const steps = r.steps
-    ? r.steps.split('\n').filter(Boolean).map((s, i) => (i+1) + '. ' + s.trim()).join('\n')
-    : '';
-
-  let text = `🍽 *${title}*`;
-  if (catLabel) text += `\n📂 ${catLabel}`;
-  if (ingredients) text += `\n\n🥘 *Ингредиенты:*\n${ingredients}`;
-  if (steps)       text += `\n\n👨‍🍳 *Приготовление:*\n${steps}`;
-  if (r.photo_url) text += `\n\n📸 Фото: ${r.photo_url}`;
-  return text;
-}
-
-// ── Delete ──
-document.getElementById('btn-delete').addEventListener('click', () => {
-  if (!currentRecipe) return;
-  const msg = `Удалить рецепт «${currentRecipe.title}»?`;
-  if (tg?.showConfirm) {
-    tg.showConfirm(msg, ok => { if (ok) doDelete(); });
-  } else {
-    if (confirm(msg)) doDelete();
+    navigateTo('detail');
   }
-});
 
-async function doDelete() {
-  const id = currentRecipe.id;
-  try {
-    await api({ action: 'delete', id });
-    allRecipes = allRecipes.filter(r => r.id !== id);
-    goBack();
-    applyFilter();
-    showToast('🗑 Рецепт удалён');
-  } catch (e) {
-    showToast('Ошибка при удалении');
+  // ── Copy ──
+  document.getElementById('btn-copy').addEventListener('click', () => {
+    if (!currentRecipe) return;
+    const text = formatForCopy(currentRecipe);
+    navigator.clipboard.writeText(text)
+            .then(() => showToast('✅ Рецепт скопирован'))
+            .catch(() => showToast('Не удалось скопировать'));
+  });
+
+  function formatForCopy(r) {
+    const title    = r.title || '';
+    const catLabel = r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : '';
+    const ingredients = r.ingredients
+            ? r.ingredients.split('\n').filter(Boolean).map(i => '• ' + i.trim()).join('\n')
+            : '';
+    const steps = r.steps
+            ? r.steps.split('\n').filter(Boolean).map((s, i) => (i+1) + '. ' + s.trim()).join('\n')
+            : '';
+
+    let text = `🍽 *${title}*`;
+    if (catLabel) text += `\n📂 ${catLabel}`;
+    if (ingredients) text += `\n\n🥘 *Ингредиенты:*\n${ingredients}`;
+    if (steps)       text += `\n\n👨‍🍳 *Приготовление:*\n${steps}`;
+    if (r.photo_url) text += `\n\n📸 Фото: ${r.photo_url}`;
+    return text;
   }
-}
 
-// ════════════════════════════════════════════
-// ADD SCREEN
-// ════════════════════════════════════════════
-function resetAddForm() {
-  document.getElementById('f-title').value       = '';
-  document.getElementById('f-category').value    = '';
-  document.getElementById('f-ingredients').value = '';
-  document.getElementById('f-steps').value       = '';
-  document.getElementById('f-photo-url').value   = '';
-  photoUrl = '';
-  renderPhotoArea();
-}
-
-// ── Photo upload ──
-document.getElementById('btn-photo').addEventListener('click', () => {
-  document.getElementById('file-input').click();
-});
-
-document.getElementById('file-input').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  e.target.value = '';
-
-  // Show preview immediately
-  const dataUrl = await readFileAsDataUrl(file);
-  showPhotoPreview(dataUrl, true);
-
-  // Compress then upload
-  try {
-    const blob = await compressImage(file, 1200, 0.82);
-    const fd = new FormData();
-    fd.append('file', blob, 'photo.jpg');
-    const resp = await fetch('https://telegra.ph/upload', { method: 'POST', body: fd });
-    const json = await resp.json();
-    if (Array.isArray(json) && json[0]?.src) {
-      photoUrl = 'https://telegra.ph' + json[0].src;
-      showPhotoPreview(dataUrl, false);
+  // ── Delete ──
+  document.getElementById('btn-delete').addEventListener('click', () => {
+    if (!currentRecipe) return;
+    const msg = `Удалить рецепт «${currentRecipe.title}»?`;
+    if (tg?.showConfirm) {
+      tg.showConfirm(msg, ok => { if (ok) doDelete(); });
     } else {
-      throw new Error('Bad response');
+      if (confirm(msg)) doDelete();
     }
-  } catch (err) {
-    showToast('Не удалось загрузить фото');
+  });
+
+  async function doDelete() {
+    const id = currentRecipe.id;
+    try {
+      await api({ action: 'delete', id });
+      allRecipes = allRecipes.filter(r => r.id !== id);
+      goBack();
+      applyFilter();
+      showToast('🗑 Рецепт удалён');
+    } catch (e) {
+      showToast('Ошибка при удалении');
+    }
+  }
+
+  // ════════════════════════════════════════════
+  // ADD SCREEN
+  // ════════════════════════════════════════════
+  function resetAddForm() {
+    document.getElementById('f-title').value       = '';
+    document.getElementById('f-category').value    = '';
+    document.getElementById('f-ingredients').value = '';
+    document.getElementById('f-steps').value       = '';
+    document.getElementById('f-photo-url').value   = '';
     photoUrl = '';
     renderPhotoArea();
   }
-});
 
-function readFileAsDataUrl(file) {
-  return new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onload = () => res(fr.result);
-    fr.onerror = rej;
-    fr.readAsDataURL(file);
-  });
-}
-
-function compressImage(file, maxWidth, quality) {
-  return new Promise((res) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const scale = Math.min(1, maxWidth / img.width);
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      canvas.toBlob(blob => res(blob), 'image/jpeg', quality);
-    };
-    img.src = url;
-  });
-}
-
-function showPhotoPreview(src, loading) {
-  const area = document.getElementById('photo-area');
-  area.innerHTML = `
-    <div class="photo-preview-wrap" id="preview-wrap">
-      <img class="photo-preview" src="${src}" alt="">
-      ${loading ? '<div class="photo-loading"><div class="spinner"></div></div>' : ''}
-      ${!loading ? '<button class="photo-remove" id="btn-remove-photo">✕</button>' : ''}
-    </div>
-    <input id="f-photo-url" class="form-input" type="url" placeholder="Или вставьте ссылку на фото">`;
-  if (!loading) {
-    document.getElementById('btn-remove-photo').addEventListener('click', () => {
-      photoUrl = '';
-      renderPhotoArea();
-    });
-  }
-}
-
-function renderPhotoArea() {
-  const area = document.getElementById('photo-area');
-  area.innerHTML = `
-    <button class="btn-photo" id="btn-photo">📷 Сделать фото или выбрать из галереи</button>
-    <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none">
-    <input id="f-photo-url" class="form-input" type="url" placeholder="Или вставьте ссылку на фото">`;
+  // ── Photo upload ──
   document.getElementById('btn-photo').addEventListener('click', () => {
     document.getElementById('file-input').click();
   });
+
   document.getElementById('file-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     e.target.value = '';
+
+    // Show preview immediately
     const dataUrl = await readFileAsDataUrl(file);
     showPhotoPreview(dataUrl, true);
+
+    // Compress then upload
     try {
       const blob = await compressImage(file, 1200, 0.82);
       const fd = new FormData();
@@ -985,149 +919,227 @@ function renderPhotoArea() {
       if (Array.isArray(json) && json[0]?.src) {
         photoUrl = 'https://telegra.ph' + json[0].src;
         showPhotoPreview(dataUrl, false);
-      } else throw new Error();
-    } catch {
+      } else {
+        throw new Error('Bad response');
+      }
+    } catch (err) {
       showToast('Не удалось загрузить фото');
       photoUrl = '';
       renderPhotoArea();
     }
   });
-}
 
-// ── Save recipe ──
-async function saveRecipe() {
-  if (isSaving) return;
-  const title       = document.getElementById('f-title').value.trim();
-  const category    = document.getElementById('f-category').value;
-  const ingredients = document.getElementById('f-ingredients').value.trim();
-  const steps       = document.getElementById('f-steps').value.trim();
-  const manualUrl   = document.getElementById('f-photo-url')?.value.trim() || '';
-  const finalPhoto  = photoUrl || manualUrl;
-
-  if (!title) { showToast('Введите название рецепта'); return; }
-  if (!ingredients) { showToast('Добавьте ингредиенты'); return; }
-
-  isSaving = true;
-  if (tg?.MainButton) {
-    tg.MainButton.showProgress(true);
-    tg.MainButton.disable();
+  function readFileAsDataUrl(file) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(fr.result);
+      fr.onerror = rej;
+      fr.readAsDataURL(file);
+    });
   }
 
-  try {
-    const result = await api({
-      action: 'add',
-      title,
-      category,
-      ingredients,
-      steps,
-      photo_url: finalPhoto
+  function compressImage(file, maxWidth, quality) {
+    return new Promise((res) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, maxWidth / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(blob => res(blob), 'image/jpeg', quality);
+      };
+      img.src = url;
     });
-    if (result.error) throw new Error(result.error);
+  }
 
-    // Add to local list
-    allRecipes.unshift({
-      id: result.id,
-      title, category, ingredients, steps,
-      photo_url: finalPhoto,
-      created_at: new Date().toISOString()
-    });
-    goBack();
-    resetAddForm();
-    applyFilter();
-    showToast('✅ Рецепт добавлен!');
-  } catch (e) {
-    showToast('Ошибка сохранения: ' + (e.message || ''));
-  } finally {
-    isSaving = false;
-    if (tg?.MainButton) {
-      tg.MainButton.hideProgress();
-      tg.MainButton.enable();
+  function showPhotoPreview(src, loading) {
+    const area = document.getElementById('photo-area');
+    area.innerHTML = `
+    <div class="photo-preview-wrap" id="preview-wrap">
+      <img class="photo-preview" src="${src}" alt="">
+      ${loading ? '<div class="photo-loading"><div class="spinner"></div></div>' : ''}
+      ${!loading ? '<button class="photo-remove" id="btn-remove-photo">✕</button>' : ''}
+    </div>
+    <input id="f-photo-url" class="form-input" type="url" placeholder="Или вставьте ссылку на фото">`;
+    if (!loading) {
+      document.getElementById('btn-remove-photo').addEventListener('click', () => {
+        photoUrl = '';
+        renderPhotoArea();
+      });
     }
   }
-}
 
-// ════════════════════════════════════════════
-// SETTINGS / EXPORT
-// ════════════════════════════════════════════
-document.getElementById('btn-export').addEventListener('click', async () => {
-  const row = document.getElementById('btn-export');
-  row.innerHTML = '<span class="s-icon"><div class="spinner" style="width:18px;height:18px;border-top-color:var(--accent);border-color:var(--border)"></div></span><span class="s-label">Экспорт…</span>';
-
-  try {
-    const data = await api({ action: 'export' });
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    const date = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `recipes_export_${date}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast(`✅ Экспорт завершён — ${data.total} рецептов`);
-  } catch (e) {
-    showToast('Ошибка экспорта');
-  } finally {
-    row.innerHTML = '<span class="s-icon">📥</span><span class="s-label">Экспортировать в JSON</span><span class="s-arrow">›</span>';
+  function renderPhotoArea() {
+    const area = document.getElementById('photo-area');
+    area.innerHTML = `
+    <button class="btn-photo" id="btn-photo">📷 Сделать фото или выбрать из галереи</button>
+    <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none">
+    <input id="f-photo-url" class="form-input" type="url" placeholder="Или вставьте ссылку на фото">`;
+    document.getElementById('btn-photo').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+    document.getElementById('file-input').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      e.target.value = '';
+      const dataUrl = await readFileAsDataUrl(file);
+      showPhotoPreview(dataUrl, true);
+      try {
+        const blob = await compressImage(file, 1200, 0.82);
+        const fd = new FormData();
+        fd.append('file', blob, 'photo.jpg');
+        const resp = await fetch('https://telegra.ph/upload', { method: 'POST', body: fd });
+        const json = await resp.json();
+        if (Array.isArray(json) && json[0]?.src) {
+          photoUrl = 'https://telegra.ph' + json[0].src;
+          showPhotoPreview(dataUrl, false);
+        } else throw new Error();
+      } catch {
+        showToast('Не удалось загрузить фото');
+        photoUrl = '';
+        renderPhotoArea();
+      }
+    });
   }
-});
 
-// ════════════════════════════════════════════
-// SEARCH
-// ════════════════════════════════════════════
-document.getElementById('search-input').addEventListener('input', (e) => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    searchQuery = e.target.value.trim();
-    applyFilter();
-  }, 300);
-});
+  // ── Save recipe ──
+  async function saveRecipe() {
+    if (isSaving) return;
+    const title       = document.getElementById('f-title').value.trim();
+    const category    = document.getElementById('f-category').value;
+    const ingredients = document.getElementById('f-ingredients').value.trim();
+    const steps       = document.getElementById('f-steps').value.trim();
+    const manualUrl   = document.getElementById('f-photo-url')?.value.trim() || '';
+    const finalPhoto  = photoUrl || manualUrl;
 
-// ════════════════════════════════════════════
-// TOAST
-// ════════════════════════════════════════════
-let toastTimer = null;
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
-}
+    if (!title) { showToast('Введите название рецепта'); return; }
+    if (!ingredients) { showToast('Добавьте ингредиенты'); return; }
 
-// ════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+    isSaving = true;
+    if (tg?.MainButton) {
+      tg.MainButton.showProgress(true);
+      tg.MainButton.disable();
+    }
 
-function formatDate(iso) {
-  try {
-    return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-  } catch { return ''; }
-}
+    try {
+      const result = await apiPost({
+        action: 'add',
+        title,
+        category,
+        ingredients,
+        steps,
+        photo_url: finalPhoto
+      });
+      if (result.error) throw new Error(result.error);
 
-function categoryEmoji(cat) {
-  const map = {
-    завтрак: '🍳', суп: '🥣', салат: '🥗', основное: '🍖',
-    десерт: '🍰', выпечка: '🥐', напиток: '🥤', другое: '🍽'
-  };
-  return map[(cat || '').toLowerCase()] || '🍽';
-}
+      // Add to local list
+      allRecipes.unshift({
+        id: result.id,
+        title, category, ingredients, steps,
+        photo_url: finalPhoto,
+        created_at: new Date().toISOString()
+      });
+      goBack();
+      resetAddForm();
+      applyFilter();
+      showToast('✅ Рецепт добавлен!');
+    } catch (e) {
+      showToast('Ошибка сохранения: ' + (e.message || ''));
+    } finally {
+      isSaving = false;
+      if (tg?.MainButton) {
+        tg.MainButton.hideProgress();
+        tg.MainButton.enable();
+      }
+    }
+  }
 
-// ════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════
-renderChips();
-loadRecipes();
-updateTgBackButton();
-updateTgMainButton();
+  // ════════════════════════════════════════════
+  // SETTINGS / EXPORT
+  // ════════════════════════════════════════════
+  document.getElementById('btn-export').addEventListener('click', async () => {
+    const row = document.getElementById('btn-export');
+    row.innerHTML = '<span class="s-icon"><div class="spinner" style="width:18px;height:18px;border-top-color:var(--accent);border-color:var(--border)"></div></span><span class="s-label">Экспорт…</span>';
+
+    try {
+      const data = await api({ action: 'export' });
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `recipes_export_${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`✅ Экспорт завершён — ${data.total} рецептов`);
+    } catch (e) {
+      showToast('Ошибка экспорта');
+    } finally {
+      row.innerHTML = '<span class="s-icon">📥</span><span class="s-label">Экспортировать в JSON</span><span class="s-arrow">›</span>';
+    }
+  });
+
+  // ════════════════════════════════════════════
+  // SEARCH
+  // ════════════════════════════════════════════
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = e.target.value.trim();
+      applyFilter();
+    }, 300);
+  });
+
+  // ════════════════════════════════════════════
+  // TOAST
+  // ════════════════════════════════════════════
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  // ════════════════════════════════════════════
+  // HELPERS
+  // ════════════════════════════════════════════
+  function escapeHtml(str) {
+    return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+  }
+
+  function formatDate(iso) {
+    try {
+      return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    } catch { return ''; }
+  }
+
+  function categoryEmoji(cat) {
+    const map = {
+      завтрак: '🍳', суп: '🥣', салат: '🥗', основное: '🍖',
+      десерт: '🍰', выпечка: '🥐', напиток: '🥤', другое: '🍽'
+    };
+    return map[(cat || '').toLowerCase()] || '🍽';
+  }
+
+  // ════════════════════════════════════════════
+  // INIT
+  // ════════════════════════════════════════════
+  renderChips();
+  loadRecipes();
+  updateTgBackButton();
+  updateTgMainButton();
 </script>
 </body>
 </html>
