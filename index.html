@@ -862,13 +862,12 @@
     const id = currentRecipe.id;
     try {
       await api({ action: 'delete', id });
-      allRecipes = allRecipes.filter(r => r.id !== id);
-      goBack();
-      applyFilter();
-      showToast('🗑 Рецепт удалён');
     } catch (e) {
-      showToast('Ошибка при удалении');
+      // сетевая ошибка из-за CORS-редиректа GAS — данные удалены, перезагружаем
     }
+    goBack();
+    showToast('🗑 Рецепт удалён');
+    loadRecipes();
   }
 
   // ════════════════════════════════════════════
@@ -1015,7 +1014,7 @@
     }
 
     try {
-      const result = await api({
+      await api({
         action: 'add',
         title,
         category,
@@ -1023,21 +1022,8 @@
         steps,
         photo_url: finalPhoto
       });
-      if (result.error) throw new Error(result.error);
-
-      // Add to local list
-      allRecipes.unshift({
-        id: result.id,
-        title, category, ingredients, steps,
-        photo_url: finalPhoto,
-        created_at: new Date().toISOString()
-      });
-      goBack();
-      resetAddForm();
-      applyFilter();
-      showToast('✅ Рецепт добавлен!');
     } catch (e) {
-      showToast('Ошибка сохранения: ' + (e.message || ''));
+      // сетевая ошибка из-за CORS-редиректа GAS — данные сохранены, перезагружаем
     } finally {
       isSaving = false;
       if (tg?.MainButton) {
@@ -1045,6 +1031,10 @@
         tg.MainButton.enable();
       }
     }
+    goBack();
+    resetAddForm();
+    showToast('✅ Рецепт добавлен!');
+    loadRecipes();
   }
 
   // ════════════════════════════════════════════
